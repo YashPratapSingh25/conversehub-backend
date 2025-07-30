@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, BackgroundTasks, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.schemas.register_schema import RegisterSchema
 from src.auth.services.register_service import register
@@ -13,9 +13,10 @@ register_router = APIRouter()
 async def register_user(
     request : Request,
     schema : RegisterSchema,
+    tasks : BackgroundTasks,
     session : AsyncSession = Depends(get_session)
 ):  
-    result = await register(schema=schema, session = session)
+    result = await register(schema=schema, session = session, tasks = tasks)
     response = ResponseModel(
         method=request.method,
         path=request.url.path,
