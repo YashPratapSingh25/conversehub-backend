@@ -3,13 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.user_model import UserAuth
 from src.auth.schemas.register_schema import RegisterSchema
 from src.auth.schemas.user_response_schema import UserResponseModel
+from src.auth.services.check_username_service import check_username_exists
 from src.auth.services.otp_service import create_otp
 from src.core.constants import constants
 from src.core.emails.mail_utils import send_otp_mail
 from src.core.exceptions_utils.exceptions import ResourceConflictError
 from src.core.hash_utils import generate_hash
-from src.auth.utils.get_user_by_email import get_user_by_email
-from src.auth.utils.get_user_by_username import get_user_by_username
+from src.auth.services.get_user_by_email_service import get_user_by_email
 
 
 async def register(
@@ -22,9 +22,9 @@ async def register(
     if email_check is not None:
         raise ResourceConflictError("User already exists")
     
-    username_check = await get_user_by_username(schema.username, session)
+    username_exists = await check_username_exists(schema.username, session)
 
-    if username_check is not None:
+    if username_exists:
         raise ResourceConflictError("Username already exists")
 
     new_user = UserAuth(**schema.model_dump())

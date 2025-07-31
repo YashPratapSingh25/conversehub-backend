@@ -10,3 +10,7 @@ class ResourceConflictError(AppException):
 class BadRequestError(AppException):
     def __init__(self, detail="Bad Request"):
         super().__init__(400, detail)
+
+class UnauthenticatedError(AppException):
+    def __init__(self, detail = "Unauthenicated"):
+        super().__init__(401, detail)

@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from src.auth.models.otp_model import Otp
+from src.auth.models.refresh_token_model import RefreshToken
 from src.auth.models.user_model import UserAuth
 from src.core.db import session_maker
 
@@ -33,6 +34,15 @@ async def clear_unregistered_users():
         )
         
         await session.commit()
+
+async def clear_refresh_tokens():
+    async with session_maker() as session:
+        await session.execute(
+            delete(RefreshToken)
+            .where(RefreshToken.exp < datetime.now(timezone.utc) | (RefreshToken.used == True))
+        )
+
+        await session.commit()
     
 async def init_scheduler():
     global scheduler
@@ -54,6 +64,15 @@ async def init_scheduler():
         trigger=IntervalTrigger(days=1),
         id="clear_unregistered_users",
         name="Clear Unregisterd Users",
+        replace_existing=True,
+        max_instances=1
+    )
+
+    scheduler.add_job(
+        func=clear_refresh_tokens,
+        trigger=IntervalTrigger(days=1),
+        id="clear_refresh_tokens",
+        name="Clear used and expired tokens",
         replace_existing=True,
         max_instances=1
     )

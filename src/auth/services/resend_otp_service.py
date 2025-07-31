@@ -3,7 +3,7 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.schemas.user_response_schema import UserResponseModel
 from src.auth.services.otp_service import create_otp
-from src.auth.utils.get_user_by_email import get_user_by_email
+from src.auth.services.get_user_by_email_service import get_user_by_email
 from src.core.emails.mail_utils import send_otp_mail
 from src.core.exceptions_utils.exceptions import BadRequestError
 from src.core.constants import constants

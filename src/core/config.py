@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     MAIL_FROM: str
     MAIL_PORT: int
     MAIL_SERVER: str
+    ACCESS_TOKEN_SECRET_KEY: str
+    ACCESS_TOKEN_DURATION: int
+    ACCESS_TOKEN_ALGORITHM: str
+    REFRESH_TOKEN_DURATION: int
+
 
     model_config = SettingsConfigDict(
         env_file=".env",

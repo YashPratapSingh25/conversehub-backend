@@ -13,6 +13,7 @@ from src.core.db import Base
 
 from src.auth.models.user_model import UserAuth
 from src.auth.models.otp_model import Otp
+from src.auth.models.refresh_token_model import RefreshToken
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
