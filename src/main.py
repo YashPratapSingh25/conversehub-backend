@@ -2,8 +2,8 @@ from fastapi import FastAPI, HTTPException
 from contextlib import asynccontextmanager
 from slowapi.errors import RateLimitExceeded
 from fastapi.exceptions import RequestValidationError
-from src.core import limiter
-from src.core.db import engine, async_sessionmaker
+from src.core.limiter import limiter
+from src.core.db import engine, session_maker
 from src.auth.__init__ import auth_router
 from src.core.exceptions_utils.exception_handlers import (
     app_exception_handler,
@@ -13,16 +13,19 @@ from src.core.exceptions_utils.exception_handlers import (
     http_exception_handler
 )
 from src.core.exceptions_utils.exceptions import AppException
+from src.core.scheduler import close_scheduler, init_scheduler
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):
+    await init_scheduler()
     app.state.engine = engine
-    app.state.async_sessionmaker = async_sessionmaker
     app.state.limiter = limiter
 
     yield
 
     await app.state.engine.dispose()
+    limiter.enabled = False
+    await close_scheduler()
 
 app = FastAPI(lifespan=lifespan, title="ConverseHub Backend")
 

@@ -12,6 +12,7 @@ from src.core.config import settings
 from src.core.db import Base
 
 from src.auth.models.user_model import UserAuth
+from src.auth.models.otp_model import Otp
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

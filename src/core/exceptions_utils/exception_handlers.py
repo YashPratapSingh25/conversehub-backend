@@ -12,7 +12,7 @@ def exception_helper(
     exc : HTTPException | RequestValidationError | AppException | None = None
 ) -> JSONResponse:
     
-    error_detail = "Interal Server Error"
+    error_detail = "Internal Server Error"
     status_code = 500
 
     if errors is None:

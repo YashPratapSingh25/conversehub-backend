@@ -6,3 +6,7 @@ class AppException(Exception):
 class ResourceConflictError(AppException):
     def __init__(self, detail="Resource Conflict"):
         super().__init__(409, detail)
+
+class BadRequestError(AppException):
+    def __init__(self, detail="Bad Request"):
+        super().__init__(400, detail)

@@ -78,3 +78,5 @@ uploads/
 
 # Optional: Uvicorn reload files
 reloader-*.pid
+
+versions
