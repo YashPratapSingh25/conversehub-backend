@@ -4,8 +4,13 @@ from typing import AsyncGenerator
 from .config import settings
 
 engine = create_async_engine(
-    url=settings.DB_URL,
-    echo=True
+    url = settings.DB_URL,
+    pool_size = 10,
+    max_overflow = 20,
+    pool_pre_ping = True,
+    pool_timeout = 30,
+    pool_recycle = 3600,
+    echo = True
 )
 
 session_maker = async_sessionmaker(

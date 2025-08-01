@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from slowapi.errors import RateLimitExceeded
 from fastapi.exceptions import RequestValidationError
 from src.core.limiter import limiter
-from src.core.db import engine, session_maker
 from src.auth.__init__ import auth_router
+from src.core.db import engine
 from src.core.exceptions_utils.exception_handlers import (
     app_exception_handler,
     global_exception_handler,
