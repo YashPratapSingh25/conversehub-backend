@@ -42,6 +42,9 @@ async def verify_and_revoke_pwd_reset_token_and_change_password(schema : ForgotP
     reset_token_obj = result.scalar_one_or_none()
     print(reset_token_obj)
 
+    if verify_hash(schema.new_password, user.password):
+        raise BadRequestError("New password can't be same as old password.")
+
     if reset_token_obj is None or not verify_hash(schema.reset_token, reset_token_obj.token) or reset_token_obj.used:
         raise BadRequestError("Invalid token")
 

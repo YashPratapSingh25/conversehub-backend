@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.interval import IntervalTrigger
 from src.auth.models.otp_model import Otp
+from src.auth.models.password_reset_token_model import PasswordResetToken
 from src.auth.models.refresh_token_model import RefreshToken
 from src.auth.models.user_model import UserAuth
 from src.core.db import session_maker
@@ -44,6 +45,13 @@ async def clear_refresh_tokens():
 
         await session.commit()
     
+async def clear_reset_tokens():
+    async with session_maker() as session:
+        await session.execute(
+            delete(PasswordResetToken)
+            .where((PasswordResetToken.exp < datetime.now(timezone.utc)) | (PasswordResetToken.used.is_(True)))
+        )
+
 async def init_scheduler():
     global scheduler
     scheduler = AsyncIOScheduler()
@@ -75,6 +83,14 @@ async def init_scheduler():
         max_instances=1
     )
 
+    scheduler.add_job(
+        func=clear_reset_tokens,
+        trigger=IntervalTrigger(days=1),
+        id="clear_reset_tokens",
+        name="Clear used and expired password reset tokens",
+        replace_existing=True,
+        max_instances=1
+    )
     scheduler.start()
 
 async def close_scheduler():
