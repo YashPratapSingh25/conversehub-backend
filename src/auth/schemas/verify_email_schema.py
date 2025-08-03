@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
 
-class VerifySchema(BaseModel):
+class VerifyOtpSchema(BaseModel):
     email : EmailStr
     otp : str

@@ -1,12 +1,16 @@
 from datetime import datetime, timezone
 import uuid
-from sqlalchemy import Boolean, DateTime, String
+from sqlalchemy import Boolean, DateTime, String, Index
 from sqlalchemy.orm import mapped_column, Mapped, relationship
 from sqlalchemy.dialects.postgresql import UUID
 from src.core.db import Base
 
 class UserAuth(Base):
     __tablename__ = "users"
+
+    __table_args__ = (
+        Index("ix_verified_created", "verified", "created_at"),
+    )
 
     id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     username : Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
@@ -20,3 +24,4 @@ class UserAuth(Base):
 
     otps: Mapped[list["Otp"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
     refresh_tokens : Mapped[list["RefreshToken"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
+    pwd_reset_tokens : Mapped[list["PasswordResetToken"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore

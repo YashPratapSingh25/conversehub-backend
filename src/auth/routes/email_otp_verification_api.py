@@ -1,21 +1,21 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.auth.schemas.verify_schema import VerifySchema
+from src.auth.schemas.verify_email_schema import VerifyOtpSchema
 from src.core.db import get_session
 from src.core.limiter import limiter
 from src.core.common_schemas import ResponseModel
-from src.auth.services.verify_service import verify_user_service as verify
+from src.auth.services.verify_user_service import verify_user
 
 verify_otp_router  = APIRouter()
 
 @verify_otp_router.post('/verify-email-verification-otp', response_model=ResponseModel)
 @limiter.limit("5/5minute")
-async def verify_email_otp(
+async def verify_user_with_otp(
     request : Request,
-    schema : VerifySchema, 
+    schema : VerifyOtpSchema, 
     session : AsyncSession = Depends(get_session)                       
 ):
-    result = await verify(session, schema)
+    result = await verify_user(session, schema)
     response = ResponseModel(
         data=result,
         message="OTP Verified",

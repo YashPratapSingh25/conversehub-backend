@@ -1,11 +1,11 @@
 from fastapi import APIRouter, BackgroundTasks, Depends, Query, Request
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.auth.services.resend_otp_service import resend_otp as resend
+from src.auth.services.otp_service import send_otp
+from src.auth.utils.query_pattern import email_pattern
 from src.core.common_schemas import ResponseModel
 from src.core.db import get_session
 from src.core.limiter import limiter
-from src.core.constants import constants
 
 resend_otp_router = APIRouter()
 
@@ -14,10 +14,10 @@ resend_otp_router = APIRouter()
 async def resend_otp(
     request : Request,
     tasks : BackgroundTasks,
-    email : EmailStr = Query(),
+    email : str = Query(pattern=email_pattern),
     session : AsyncSession = Depends(get_session)
 ):
-    result = await resend(email, session, constants.EmailVerificationUsage, tasks)
+    result = await send_otp(email, session, "email_verification", tasks)
     response = ResponseModel(
         data=result,
         message="OTP sent",

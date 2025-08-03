@@ -17,11 +17,11 @@ async def clear_otps():
         await session.execute(
             delete(Otp)
             .where(
-                (Otp.used == True) | (Otp.exp < datetime.now(timezone.utc))
+                (Otp.used.is_(True)) | (Otp.exp < datetime.now(timezone.utc))
             )
         )
 
-        await session.commit()   
+        await session.commit()
 
 async def clear_unregistered_users():
     delete_time = datetime.now(timezone.utc) - timedelta(days=1)
@@ -29,7 +29,7 @@ async def clear_unregistered_users():
     async with session_maker() as session:
         await session.execute(
             delete(UserAuth)
-            .where(UserAuth.verified == False)
+            .where(UserAuth.verified.is_(False))
             .where(UserAuth.created_at < delete_time)
         )
         
@@ -39,7 +39,7 @@ async def clear_refresh_tokens():
     async with session_maker() as session:
         await session.execute(
             delete(RefreshToken)
-            .where(RefreshToken.exp < datetime.now(timezone.utc) | (RefreshToken.used == True))
+            .where((RefreshToken.exp < datetime.now(timezone.utc)) | (RefreshToken.used.is_(True)))
         )
 
         await session.commit()
@@ -47,8 +47,6 @@ async def clear_refresh_tokens():
 async def init_scheduler():
     global scheduler
     scheduler = AsyncIOScheduler()
-
-    
 
     scheduler.add_job(
         clear_otps,

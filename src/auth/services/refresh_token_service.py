@@ -8,7 +8,7 @@ from src.core.exceptions_utils.exceptions import BadRequestError, Unauthenticate
 from src.core.hash_utils import generate_hash, verify_hash
 from src.core.config import settings
 
-async def create_refresh_token(request : Request, user_id : UUID, session : AsyncSession) -> str:
+async def create_and_store_refresh_token(request : Request, user_id : UUID, session : AsyncSession) -> str:
     token_id : UUID = uuid4()
     token : UUID = uuid4()
     complete_token = str(token_id) + "." + str(token)
@@ -16,7 +16,7 @@ async def create_refresh_token(request : Request, user_id : UUID, session : Asyn
     refresh_token = RefreshToken(
         id = token_id,
         user_id = user_id,
-        token = generate_hash(complete_token),
+        token = generate_hash(str(token)),
         exp = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_DURATION),
         user_agent = request.headers.get('User-Agent', None),
         ip_address = request.client.host
@@ -28,7 +28,7 @@ async def create_refresh_token(request : Request, user_id : UUID, session : Asyn
 
     return complete_token
 
-async def verify_refresh_token(complete_token : str, session : AsyncSession) -> RefreshToken:
+async def verify_and_revoke_refresh_token(complete_token : str, session : AsyncSession) -> RefreshToken:
     if len(complete_token.split(".")) != 2:
         raise BadRequestError("Invalid Refresh Token")
     
@@ -42,7 +42,7 @@ async def verify_refresh_token(complete_token : str, session : AsyncSession) -> 
 
     token_obj = result.scalar_one_or_none()
 
-    if not token_obj or verify_hash(token, token_obj.token) or token_obj.used:
+    if not token_obj or not verify_hash(token, token_obj.token) or token_obj.used:
         raise UnauthenticatedError("Invalid Refresh Token")
 
     if token_obj.exp < datetime.now(timezone.utc):

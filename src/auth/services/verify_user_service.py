@@ -1,21 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.auth.schemas.verify_schema import VerifySchema
-from src.auth.services.otp_service import verify_otp
+from src.auth.schemas.verify_email_schema import VerifyOtpSchema
+from src.auth.services.otp_service import verify_and_revoke_otp
 from src.auth.services.get_user_by_email_service import get_user_by_email
 from src.core.exceptions_utils.exceptions import BadRequestError
 from src.auth.schemas.user_response_schema import UserResponseModel
-from src.core.constants import constants
 
-async def verify_user_service(
+async def verify_user(
     session : AsyncSession, 
-    schema : VerifySchema
+    schema : VerifyOtpSchema
 ):
-    user = await get_user_by_email(schema.email, session)
-
-    if user is None:
-        raise BadRequestError("No user found for the e-mail")
-
-    await verify_otp(session, user.id, schema.otp, usage=constants.EmailVerificationUsage)
+    user = await verify_and_revoke_otp(session, schema, usage="email_verification")
 
     user.verified = True
     session.add(user)
