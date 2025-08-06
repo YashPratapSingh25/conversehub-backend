@@ -47,13 +47,13 @@ def http_exception_handler(request : Request, exc : HTTPException):
     return exception_helper(request, exc=exc)
 
 def request_validation_handler(request : Request, exc : RequestValidationError):
-    logger.bind(error = error).info("Request Validation Failed")
     sanitized_errors= []
     for error in exc.errors():
         if "ctx" in error and "error" in error["ctx"]:
             error["ctx"]["error"] = str(error["ctx"]["error"])
 
         sanitized_errors.append(error)
+    logger.bind(error = sanitized_errors).info("Request Validation Failed")
 
     return exception_helper(request, errors=sanitized_errors)
 
