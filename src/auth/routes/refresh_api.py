@@ -16,9 +16,5 @@ async def refresh_token(
     session : AsyncSession = Depends(get_session)
 ):
     result = await refresh(request, refresh_token, session)
-    response = ResponseModel(
-        data=result,
-        method=request.method,
-        path=request.url.path
-    )
+    response = ResponseModel.create_response(data=result, request=request)
     return response

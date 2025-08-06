@@ -53,10 +53,5 @@ async def forgot_password(
     session : AsyncSession = Depends(get_session)
 ):
     result = await verify_and_revoke_pwd_reset_token_and_change_password(schema, session)
-    response = ResponseModel(
-        data=result,
-        message="Password changed successfully",
-        method=request.method,
-        path=request.url.path
-    )
+    response = ResponseModel.create_response(data=result, request=request, message="Passworc changed successfully")
     return response

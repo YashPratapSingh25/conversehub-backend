@@ -25,3 +25,4 @@ class UserAuth(Base):
     otps: Mapped[list["Otp"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
     refresh_tokens : Mapped[list["RefreshToken"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
     pwd_reset_tokens : Mapped[list["PasswordResetToken"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
+    sessions : Mapped[list["Session"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore

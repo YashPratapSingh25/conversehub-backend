@@ -16,11 +16,5 @@ async def logout(
     session : AsyncSession = Depends(get_session)   
 ):
     await logout_refresh_token(complete_token=refresh_token, session=session)
-    response = ResponseModel(
-        data={},
-        message="Logout successful",
-        status_code=200,
-        path=request.base_url.path,
-        method=request.method
-    )
+    response = ResponseModel.create_response(data={}, request=request, message="Logout successful")
     return response

@@ -18,10 +18,5 @@ async def resend_otp(
     session : AsyncSession = Depends(get_session)
 ):
     result = await send_otp(email, session, "email_verification", tasks)
-    response = ResponseModel(
-        data=result,
-        message="OTP sent",
-        method=request.method,
-        path=request.url.path,
-    )
+    response = ResponseModel.create_response(data=result, request=request, message="OTP sent")
     return response

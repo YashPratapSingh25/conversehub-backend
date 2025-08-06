@@ -15,6 +15,8 @@ from src.auth.models.user_model import UserAuth
 from src.auth.models.otp_model import Otp
 from src.auth.models.refresh_token_model import RefreshToken
 from src.auth.models.password_reset_token_model import PasswordResetToken
+from src.conversation.models.session_model import Session
+from src.conversation.models.turn_model import Turn
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.

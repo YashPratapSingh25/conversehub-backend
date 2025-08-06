@@ -16,9 +16,5 @@ async def check_username(
     session : AsyncSession = Depends(get_session),
 ):
     result = await check(username, session)
-    response = ResponseModel(
-        data=result,
-        method=request.method,
-        path=request.url.path
-    )
+    response = ResponseModel.create_response(request=request, data=result)
     return response

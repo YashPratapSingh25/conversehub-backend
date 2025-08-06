@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 from typing import Any
+from fastapi import Request
 from pydantic import BaseModel, Field
 
 class BaseSchema(BaseModel):
@@ -15,6 +16,22 @@ class ResponseModel(BaseModel):
     message: str = Field(default="Success")
     status_code: int = Field(default=200)
     data: Any
+
+    @classmethod
+    def create_response(
+        cls,
+        request : Request,
+        data : Any,
+        message : str = "Success",
+        status_code : int = 200
+    ):
+        return cls(
+            method=request.method,
+            path=request.url.path,
+            message=message,
+            status_code=status_code,
+            data=data
+        )
 
 class ErrorModel(BaseModel):
     method: str

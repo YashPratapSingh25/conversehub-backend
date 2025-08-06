@@ -16,10 +16,5 @@ async def login(
     session : AsyncSession = Depends(get_session)
 ):
     result = await login_user(request, schema, session)
-    response = ResponseModel(
-        method=request.method,
-        data=result,
-        message="Login successful",
-        path=request.url.path
-    )
+    response = ResponseModel.create_response(data=result, request=request, message="Login successful")
     return response

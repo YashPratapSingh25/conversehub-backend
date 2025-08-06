@@ -5,6 +5,8 @@ from fastapi.exceptions import RequestValidationError
 from src.core.limiter import limiter
 from src.auth.routes.__init__ import auth_router
 import src.auth.models.__init__
+from src.conversation.routers.__init__ import conversation_router
+import src.conversation.models.__init__ 
 from src.core.db import engine
 from src.core.exceptions_utils.exception_handlers import (
     app_exception_handler,
@@ -15,6 +17,7 @@ from src.core.exceptions_utils.exception_handlers import (
 )
 from src.core.exceptions_utils.exceptions import AppException
 from src.core.scheduler import close_scheduler, init_scheduler
+from src.core.logger import logger
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):
@@ -31,6 +34,7 @@ async def lifespan(app : FastAPI):
 app = FastAPI(lifespan=lifespan, title="ConverseHub Backend")
 
 app.include_router(auth_router)
+app.include_router(conversation_router)
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, request_validation_handler)

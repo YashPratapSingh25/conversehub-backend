@@ -16,9 +16,5 @@ async def verify_password(
     user : UserAuth = Depends(get_current_user)
 ):
     result = verify_hash(schema.password, user.password)
-    response = ResponseModel(
-        data=result,
-        method=request.method,
-        path=request.url.path,
-    )
+    response = ResponseModel.create_response(data=result, request=request, message="OTP Verified")
     return response
