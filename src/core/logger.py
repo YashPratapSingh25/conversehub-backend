@@ -22,5 +22,7 @@ logger.add(
     "logs/backend.log",
     level="INFO",
     rotation="1 MB",
-    compression=".zip"
+    compression=".zip",
+    enqueue=False,
+    serialize=True
 )

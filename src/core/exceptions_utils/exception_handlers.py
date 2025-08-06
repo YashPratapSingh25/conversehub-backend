@@ -2,6 +2,7 @@ import json
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from src.core.logger import logger
 from src.core.common_schemas import ErrorModel
 from src.core.exceptions_utils.exceptions import AppException
 from slowapi.errors import RateLimitExceeded
@@ -12,14 +13,17 @@ def exception_helper(
     exc : HTTPException | RequestValidationError | AppException | None = None
 ) -> JSONResponse:
     
+    # by default we assume the exception to be server error
     error_detail = "Internal Server Error"
     status_code = 500
 
     if errors is None:
+        # if a list of errors is not given, its not a request validation error
         if exc != None:
             error_detail = str(exc.detail)
             status_code = exc.status_code
     else:
+        # if list of errors is given, its a request validation error
         error_detail = errors
         status_code = 422
 
@@ -36,9 +40,14 @@ def exception_helper(
 
 
 def http_exception_handler(request : Request, exc : HTTPException):
+    logger.bind(
+        status_code = exc.status_code,
+        detail = exc.detail
+    ).warning("HTTPException raised")
     return exception_helper(request, exc=exc)
 
 def request_validation_handler(request : Request, exc : RequestValidationError):
+    logger.bind(error = error).info("Request Validation Failed")
     sanitized_errors= []
     for error in exc.errors():
         if "ctx" in error and "error" in error["ctx"]:
@@ -49,11 +58,19 @@ def request_validation_handler(request : Request, exc : RequestValidationError):
     return exception_helper(request, errors=sanitized_errors)
 
 def global_exception_handler(request : Request, exc : Exception):
-    print(f"DEBUG {exc}")
+    logger.exception("Unhandled exception caught")
     return exception_helper(request)
 
 def app_exception_handler(request : Request, exc : AppException):
+    logger.bind(
+        status_code = exc.status_code,
+        detail = exc.detail
+    ).warning("App Exception Raised")
     return exception_helper(request, exc=exc)
 
 def rate_limit_exception_handler(request : Request, exc : RateLimitExceeded):
+    logger.bind(
+        status_code = 429,
+        detail = "Too many requests"
+    ).warning("App Exception Raised")
     return exception_helper(request, exc=exc)
