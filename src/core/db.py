@@ -10,7 +10,7 @@ engine = create_async_engine(
     pool_pre_ping = True,
     pool_timeout = 30,
     pool_recycle = 3600,
-    echo = True
+    echo = False
 )
 
 session_maker = async_sessionmaker(
