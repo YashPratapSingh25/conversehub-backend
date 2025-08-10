@@ -15,7 +15,7 @@ from src.auth.services.get_user_by_email_service import get_user_by_email
 async def register(
     session : AsyncSession, 
     schema : RegisterSchema, 
-    tasks : BackgroundTasks) -> UserResponseModel:
+    tasks : BackgroundTasks):
 
     email_check = await get_user_by_email(schema.email, session, registering=True)
 
@@ -36,4 +36,4 @@ async def register(
 
     await send_otp(new_user.email, session, "email_verification", tasks, new_user)
 
-    return UserResponseModel.model_validate(new_user)
+    return {"user_id": new_user.id}

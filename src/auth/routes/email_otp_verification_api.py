@@ -16,5 +16,6 @@ async def verify_user_with_otp(
     session : AsyncSession = Depends(get_session)                       
 ):
     result = await verify_user(session, schema)
+    request.state.user = result.get("user_id")
     response = ResponseModel.create_response(data=result, request=request, message="OTP Verified")
     return response

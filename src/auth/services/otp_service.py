@@ -67,4 +67,4 @@ async def send_otp(email : str, session : AsyncSession, usage : str, tasks : Bac
         subject = "Forgot Password"
 
     send_otp_mail(email, subject, otp, tasks)
-    return  UserResponseModel.model_validate(user)
+    return  {"user_id": user.id}

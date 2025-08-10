@@ -14,4 +14,4 @@ async def reset_password(session : AsyncSession, schema : ResetPasswordSchema, u
     await session.commit()
     await session.refresh(user)
 
-    return UserResponseModel.model_validate(user)
+    return {"user_id": user.id}

@@ -16,5 +16,6 @@ async def login(
     session : AsyncSession = Depends(get_session)
 ):
     result = await login_user(request, schema, session)
+    request.state.user = result.get("user_id")
     response = ResponseModel.create_response(data=result, request=request, message="Login successful")
     return response

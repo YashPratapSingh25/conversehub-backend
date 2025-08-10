@@ -17,5 +17,6 @@ async def register_user(
     session : AsyncSession = Depends(get_session)
 ):  
     result = await register(schema=schema, session = session, tasks = tasks)
+    request.state.user = result.get("user_id")
     response = ResponseModel.create_response(data=result, request=request, message="User registered", status_code=201)
     return response

@@ -21,6 +21,7 @@ async def send_forgot_password_otp(
     session : AsyncSession = Depends(get_session)
 ):
     result = await send_otp(email, session, "forgot_password", tasks)
+    request.state.user = result.get("user_id")
     response = ResponseModel(
         data=result,
         message="OTP sent",
@@ -37,6 +38,7 @@ async def verify_forgot_password_otp(
     session : AsyncSession = Depends(get_session)
 ):
     result = await create_reset_token(schema, session)
+    request.state.user = result.get("user_id")
     response = ResponseModel(
         data=result,
         message="OTP verified",
@@ -53,5 +55,6 @@ async def forgot_password(
     session : AsyncSession = Depends(get_session)
 ):
     result = await verify_and_revoke_pwd_reset_token_and_change_password(schema, session)
-    response = ResponseModel.create_response(data=result, request=request, message="Passworc changed successfully")
+    request.state.user = result.get("user_id")
+    response = ResponseModel.create_response(data=result, request=request, message="Password changed successfully")
     return response

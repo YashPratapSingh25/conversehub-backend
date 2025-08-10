@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.auth.schemas.refresh_token_schema import RefreshTokenSchema
 from src.core.db import get_session
 from src.core.limiter import limiter
 from src.core.common_schemas import ResponseModel
@@ -12,9 +13,12 @@ refresh_router = APIRouter()
 @limiter.limit("1/10minute")
 async def refresh_token(
     request : Request,
-    refresh_token : str = Depends(oauth_scheme),
+    schema : RefreshTokenSchema,
     session : AsyncSession = Depends(get_session)
 ):
-    result = await refresh(request, refresh_token, session)
+    user_agent = request.headers.get('User-Agent', None)
+    ip_address = request.client.host
+    result = await refresh(schema, session, user_agent, ip_address)
+    request.state.user = result.get("user_id")
     response = ResponseModel.create_response(data=result, request=request)
     return response

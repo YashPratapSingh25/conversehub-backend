@@ -1,5 +1,5 @@
 from uuid import UUID
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy import select
 from src.auth.models.user_model import UserAuth
@@ -9,7 +9,7 @@ from src.core.token_utils import decode_token
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-async def get_current_user(token : str = Depends(oauth_scheme)):
+async def get_current_user(request : Request, token : str = Depends(oauth_scheme)):
     payload = decode_token(token)
     str_id = payload.get("sub")
 
@@ -32,5 +32,7 @@ async def get_current_user(token : str = Depends(oauth_scheme)):
 
         if user is None:
             raise UnauthenticatedError("Invalid Token")
+
+    request.state.user = user.id
         
     return user

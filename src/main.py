@@ -16,6 +16,7 @@ from src.core.exceptions_utils.exception_handlers import (
     http_exception_handler
 )
 from src.core.exceptions_utils.exceptions import AppException
+from src.core.middlewares.logging_middleware import LoggingMiddleware
 from src.core.scheduler import close_scheduler, init_scheduler
 from src.core.logger import logger
 
@@ -41,3 +42,5 @@ app.add_exception_handler(RequestValidationError, request_validation_handler)
 app.add_exception_handler(Exception, global_exception_handler)
 app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
+
+app.add_middleware(LoggingMiddleware)

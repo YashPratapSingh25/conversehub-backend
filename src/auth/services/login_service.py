@@ -24,9 +24,10 @@ async def login_user(
         "sub": str(user.id)
     })
 
-    refresh_token = await create_and_store_refresh_token(request, user.id, session)
+    refresh_token = await create_and_store_refresh_token(user.id, session, request.headers.get("User-Agent"), request.client.host)
 
     response = {
+        "user_id": user.id,
         "access_token": access_token,
         "refresh_token": refresh_token,
         "type": "Bearer"

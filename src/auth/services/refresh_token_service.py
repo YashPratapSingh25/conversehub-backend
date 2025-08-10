@@ -8,7 +8,7 @@ from src.core.exceptions_utils.exceptions import BadRequestError, Unauthenticate
 from src.core.hash_utils import generate_hash, verify_hash
 from src.core.config import settings
 
-async def create_and_store_refresh_token(request : Request, user_id : UUID, session : AsyncSession) -> str:
+async def create_and_store_refresh_token(user_id : UUID, session : AsyncSession, user_agent, ip_address) -> str:
     token_id : UUID = uuid4()
     token : UUID = uuid4()
     complete_token = str(token_id) + "." + str(token)
@@ -18,8 +18,8 @@ async def create_and_store_refresh_token(request : Request, user_id : UUID, sess
         user_id = user_id,
         token = generate_hash(str(token)),
         exp = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_DURATION),
-        user_agent = request.headers.get('User-Agent', None),
-        ip_address = request.client.host
+        user_agent = user_agent,
+        ip_address = ip_address
     )
 
     session.add(refresh_token)

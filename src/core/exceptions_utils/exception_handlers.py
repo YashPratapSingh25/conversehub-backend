@@ -41,6 +41,8 @@ def exception_helper(
 
 def http_exception_handler(request : Request, exc : HTTPException):
     logger.bind(
+        request_id = request.state.request_id,
+        user = request.state.user,
         status_code = exc.status_code,
         detail = exc.detail
     ).warning("HTTPException raised")
@@ -53,16 +55,25 @@ def request_validation_handler(request : Request, exc : RequestValidationError):
             error["ctx"]["error"] = str(error["ctx"]["error"])
 
         sanitized_errors.append(error)
-    logger.bind(error = sanitized_errors).info("Request Validation Failed")
+    logger.bind(
+        request_id = request.state.request_id,
+        user = request.state.user,
+        error = sanitized_errors
+    ).info("Request Validation Failed")
 
     return exception_helper(request, errors=sanitized_errors)
 
 def global_exception_handler(request : Request, exc : Exception):
-    logger.exception("Unhandled exception caught")
+    logger.bind(
+        request_id = request.state.request_id,
+        user = request.state.user
+    ).exception("Unhandled exception caught")
     return exception_helper(request)
 
 def app_exception_handler(request : Request, exc : AppException):
     logger.bind(
+        request_id = request.state.request_id,
+        user = request.state.user,
         status_code = exc.status_code,
         detail = exc.detail
     ).warning("App Exception Raised")
@@ -70,6 +81,8 @@ def app_exception_handler(request : Request, exc : AppException):
 
 def rate_limit_exception_handler(request : Request, exc : RateLimitExceeded):
     logger.bind(
+        request_id = request.state.request_id,
+        user = request.state.user,
         status_code = 429,
         detail = "Too many requests"
     ).warning("App Exception Raised")

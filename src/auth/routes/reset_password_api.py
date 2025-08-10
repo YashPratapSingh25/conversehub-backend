@@ -20,5 +20,6 @@ async def reset_password(
     user : UserAuth = Depends(get_current_user)
 ):
     result = await reset(session, schema, user)
+    request.state.user = result.get("user_id")
     response = ResponseModel.create_response(data=result, request=request)
     return response
