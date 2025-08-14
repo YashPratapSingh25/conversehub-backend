@@ -10,10 +10,12 @@ from src.auth.models.password_reset_token_model import PasswordResetToken
 from src.auth.models.refresh_token_model import RefreshToken
 from src.auth.models.user_model import UserAuth
 from src.core.db import session_maker
+from src.core.logger import logger
 
 scheduler = None
 
 async def clear_otps():
+    logger.info("Clearing OTPs")
     async with session_maker() as session:
         await session.execute(
             delete(Otp)
@@ -25,6 +27,7 @@ async def clear_otps():
         await session.commit()
 
 async def clear_unregistered_users():
+    logger.info("Clearing Unregistered Users")
     delete_time = datetime.now(timezone.utc) - timedelta(days=1)
 
     async with session_maker() as session:
@@ -37,6 +40,7 @@ async def clear_unregistered_users():
         await session.commit()
 
 async def clear_refresh_tokens():
+    logger.info("Clearing Refresh Tokens")
     async with session_maker() as session:
         await session.execute(
             delete(RefreshToken)
@@ -46,6 +50,7 @@ async def clear_refresh_tokens():
         await session.commit()
     
 async def clear_reset_tokens():
+    logger.info("Clearing Reset Tokens")
     async with session_maker() as session:
         await session.execute(
             delete(PasswordResetToken)

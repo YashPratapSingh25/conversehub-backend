@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_ALGORITHM: str
     REFRESH_TOKEN_DURATION: int
     DEEPGRAM_API_KEY : str
+    AZURE_SPEECH_KEY: str
+    AZURE_SPEECH_REGION: str
+    GEMINI_API_KEY : str
 
 
     model_config = SettingsConfigDict(

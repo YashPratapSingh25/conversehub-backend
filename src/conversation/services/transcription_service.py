@@ -15,7 +15,8 @@ async def transcribe_audio(
     params = {
         "model": "nova-2",
         "punctuate": True,
-        "smart_format": True
+        "smart_format": True,
+        "filler_words": True
     }
 
     async with httpx.AsyncClient(timeout=120.0) as client:
