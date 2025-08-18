@@ -1,3 +1,4 @@
+import asyncio
 import azure.cognitiveservices.speech as speechsdk
 from azure.cognitiveservices.speech import SpeechConfig, AudioConfig
 from src.core.config import settings
@@ -27,7 +28,7 @@ def pause_metrics(audio_path, min_silence_len=400, silence_thresh=-40):
             current_pause = 0
     return len(pauses) if pauses else 0
 
-def perform_pronunciation_assessment(audio_path: str, transcript: str):
+async def perform_pronunciation_assessment(audio_path: str, transcript: str):
     speech_config = SpeechConfig(
         subscription=settings.AZURE_SPEECH_KEY,
         region=settings.AZURE_SPEECH_REGION
@@ -47,11 +48,17 @@ def perform_pronunciation_assessment(audio_path: str, transcript: str):
     )
 
     pronunciation_config.apply_to(recognizer)
-    result = recognizer.recognize_once()
+    result = await asyncio.to_thread(recognizer.recognize_once)
     return speechsdk.PronunciationAssessmentResult(result)
 
-def analyze_speech(audio_path: str, transcript: str):
-    duration = get_audio_duration(audio_path)
+async def analyze_speech(audio_path: str, transcript: str):
+    duration_task = asyncio.to_thread(get_audio_duration, audio_path)
+    pauses_task = asyncio.to_thread(pause_metrics, audio_path)
+
+    duration, pauses = await asyncio.gather(
+        duration_task,
+        pauses_task
+    )
 
     if duration > 30:
         return None
@@ -60,10 +67,9 @@ def analyze_speech(audio_path: str, transcript: str):
     dur_minutes = duration / 60
     words_per_min = round(words / dur_minutes, 2)
 
-    pauses = pause_metrics(audio_path)
     pauses_per_min = round(pauses / dur_minutes, 2)
 
-    pronunciation_result = perform_pronunciation_assessment(audio_path, "")
+    pronunciation_result = await perform_pronunciation_assessment(audio_path, "")
 
     return {
         "duration": duration,
@@ -72,7 +78,6 @@ def analyze_speech(audio_path: str, transcript: str):
         "pronunciation_score": pronunciation_result.pronunciation_score,
         "accuracy_score": pronunciation_result.accuracy_score,
         "fluency_score": pronunciation_result.fluency_score,
-        "prosody_score": pronunciation_result.prosody_score,
         "word_scores": [
             {
                 "word": word.word,

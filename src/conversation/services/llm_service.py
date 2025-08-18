@@ -1,3 +1,4 @@
+import asyncio
 import base64
 import json
 import os
@@ -22,7 +23,7 @@ def get_system_instruction(
     system_instruction = basic_instruction + resume_text + job_description + str(topic_tags)
     return system_instruction
 
-def generate_llm_response(transcription : str):
+async def generate_llm_response(transcription : str):
     client = genai.Client(
         api_key=settings.GEMINI_API_KEY,
     )
@@ -53,10 +54,12 @@ def generate_llm_response(transcription : str):
         response_schema = GeminiResponse,
     )
 
-    response = client.models.generate_content(
-        model=model,
-        contents=contents,
-        config=generate_content_config,
+    response = await asyncio.to_thread(
+        lambda : client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=generate_content_config,
+        )
     )
 
     return json.loads(response.text.strip())

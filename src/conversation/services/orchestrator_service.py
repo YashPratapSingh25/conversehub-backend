@@ -1,3 +1,4 @@
+import asyncio
 import os
 import time
 from fastapi import UploadFile
@@ -12,8 +13,12 @@ async def orchestrator(
     
     audio_file_path = await create_audio_file(audio_file)
     transcription = await transcribe_audio(audio_file_path)
-    vocal_assessment = analyze_speech(audio_file_path, transcription)
-    llm_response = generate_llm_response(transcription)
+
+    vocal_assessment_task = analyze_speech(audio_file_path, transcription)
+    llm_response_task = generate_llm_response(transcription)
+
+    vocal_assessment, llm_response = await asyncio.gather(vocal_assessment_task, llm_response_task)
+    
     result = {
         "transcription": transcription,
         "vocal_assessment": vocal_assessment,
