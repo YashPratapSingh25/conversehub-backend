@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.password_reset_token_model import PasswordResetToken
 from src.auth.models.user_model import UserAuth
 from src.auth.schemas.forgot_password_schema import ForgotPasswordSchema
-from src.auth.schemas.user_response_schema import UserResponseModel
+from src.auth.schemas.user_response_schema import UserResponseSchema
 from src.auth.schemas.verify_email_schema import VerifyOtpSchema
 from src.auth.services.otp_service import verify_and_revoke_otp
 from src.auth.services.get_user_by_email_service import get_user_by_email
@@ -20,7 +20,7 @@ async def create_and_store_pwd_reset_token_from_otp(schema : VerifyOtpSchema, se
 
     token_obj = PasswordResetToken(
         user_id = otp.user_id,
-        token = generate_hash(str(pwd_reset_token)),
+        token = await generate_hash(str(pwd_reset_token)),
         exp = exp
     )
 
@@ -44,17 +44,17 @@ async def verify_and_revoke_pwd_reset_token_and_change_password(schema : ForgotP
     reset_token_obj = result.scalar_one_or_none()
     print(reset_token_obj)
 
-    if verify_hash(schema.new_password, user.password):
+    if await verify_hash(schema.new_password, user.password):
         raise BadRequestError("New password can't be same as old password.")
 
-    if reset_token_obj is None or not verify_hash(schema.reset_token, reset_token_obj.token) or reset_token_obj.used:
+    if reset_token_obj is None or not await verify_hash(schema.reset_token, reset_token_obj.token) or reset_token_obj.used:
         raise BadRequestError("Invalid token")
 
     if reset_token_obj.exp < datetime.now(timezone.utc):
         raise BadRequestError("Expired token")
     
     new_password = schema.new_password
-    user.password = generate_hash(new_password)
+    user.password = await generate_hash(new_password)
     session.add(user)
     await session.commit()
     await session.refresh(user)

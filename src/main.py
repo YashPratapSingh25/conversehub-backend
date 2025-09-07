@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from slowapi.errors import RateLimitExceeded
 from fastapi.exceptions import RequestValidationError
@@ -34,6 +35,14 @@ async def lifespan(app : FastAPI):
 
 app = FastAPI(lifespan=lifespan, title="ConverseHub Backend")
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth_router)
 app.include_router(conversation_router)
 
@@ -44,3 +53,4 @@ app.add_exception_handler(AppException, app_exception_handler)
 app.add_exception_handler(RateLimitExceeded, rate_limit_exception_handler)
 
 app.add_middleware(LoggingMiddleware)
+

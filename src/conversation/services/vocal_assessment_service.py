@@ -69,7 +69,7 @@ async def analyze_speech(audio_path: str, transcript: str):
 
     pauses_per_min = round(pauses / dur_minutes, 2)
 
-    pronunciation_result = await perform_pronunciation_assessment(audio_path, "")
+    pronunciation_result = await perform_pronunciation_assessment(audio_path, transcript)
 
     return {
         "duration": duration,

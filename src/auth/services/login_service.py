@@ -17,7 +17,7 @@ async def login_user(
     if not user.verified:
         raise UnauthenticatedError("Email not verified")
 
-    if not verify_hash(schema.password, user.password):
+    if not await verify_hash(schema.password, user.password):
         raise UnauthenticatedError("Invalid Credentials")
     
     access_token = encode_token({

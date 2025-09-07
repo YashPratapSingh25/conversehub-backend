@@ -16,7 +16,7 @@ async def create_and_store_refresh_token(user_id : UUID, session : AsyncSession,
     refresh_token = RefreshToken(
         id = token_id,
         user_id = user_id,
-        token = generate_hash(str(token)),
+        token = await generate_hash(str(token)),
         exp = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_TOKEN_DURATION),
         user_agent = user_agent,
         ip_address = ip_address
@@ -42,7 +42,7 @@ async def verify_and_revoke_refresh_token(complete_token : str, session : AsyncS
 
     token_obj = result.scalar_one_or_none()
 
-    if not token_obj or not verify_hash(token, token_obj.token) or token_obj.used:
+    if not token_obj or not await verify_hash(token, token_obj.token) or token_obj.used:
         raise UnauthenticatedError("Invalid Refresh Token")
 
     if token_obj.exp < datetime.now(timezone.utc):

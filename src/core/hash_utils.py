@@ -1,5 +1,5 @@
 from bcrypt import checkpw, gensalt, hashpw
-
+import asyncio
 from passlib.context import CryptContext
 
 pwd_context = CryptContext(
@@ -7,9 +7,10 @@ pwd_context = CryptContext(
     deprecated = "auto"
 )
 
-def generate_hash(secret : str):
-    hash = pwd_context.hash(secret)
+async def generate_hash(secret : str):
+    hash = await asyncio.to_thread(pwd_context.hash, secret)
     return hash
 
-def verify_hash(secret : str, hash : str):
-    return pwd_context.verify(secret, hash)
+async def verify_hash(secret : str, hash : str):
+    check = await asyncio.to_thread(pwd_context.verify, secret, hash)
+    return check

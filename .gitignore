@@ -43,6 +43,7 @@ ENV/
 .mypy_cache/
 
 # FastAPI-specific (e.g., generated OpenAPI docs or cache)
+logs
 *.log
 
 # PyCharm/VSCode
@@ -78,3 +79,6 @@ uploads/
 
 # Optional: Uvicorn reload files
 reloader-*.pid
+
+# Test HTML Files
+temp.html

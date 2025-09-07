@@ -3,7 +3,7 @@ from src.auth.schemas.verify_email_schema import VerifyOtpSchema
 from src.auth.services.otp_service import verify_and_revoke_otp
 from src.auth.services.get_user_by_id_service import get_user_by_id as get_user 
 from src.core.exceptions_utils.exceptions import BadRequestError
-from src.auth.schemas.user_response_schema import UserResponseModel
+from src.auth.schemas.user_response_schema import UserResponseSchema
 
 async def verify_user(
     session : AsyncSession, 

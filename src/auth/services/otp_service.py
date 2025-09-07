@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from random import randint
 from src.auth.models.user_model import UserAuth
-from src.auth.schemas.user_response_schema import UserResponseModel
+from src.auth.schemas.user_response_schema import UserResponseSchema
 from src.auth.schemas.verify_email_schema import VerifyOtpSchema
 from src.auth.services.get_user_by_email_service import get_user_by_email
 from src.core.emails.mail_utils import send_otp_mail
@@ -16,7 +16,7 @@ from src.auth.models.otp_model import Otp
 async def create_and_store_otp(session : AsyncSession, user_id : UUID, usage : str) -> str:
     otp = str(randint(100000, 999999))
     exp = datetime.now(timezone.utc) + timedelta(minutes=5)
-    hashed_otp = generate_hash(otp)
+    hashed_otp = await generate_hash(otp)
 
     otp_obj = Otp(user_id=user_id, otp=hashed_otp, exp=exp, usage = usage)
 
@@ -46,7 +46,7 @@ async def verify_and_revoke_otp(session : AsyncSession, schema : VerifyOtpSchema
     if otp_obj.exp < datetime.now(timezone.utc):
         raise BadRequestError("Expired OTP")
     
-    if not verify_hash(schema.otp, otp_obj.otp) or otp_obj.used:
+    if not await verify_hash(schema.otp, otp_obj.otp) or otp_obj.used:
         raise BadRequestError("Invalid OTP")
     
     otp_obj.used = True

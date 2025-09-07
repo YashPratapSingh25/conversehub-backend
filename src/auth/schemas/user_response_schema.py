@@ -3,7 +3,7 @@ from typing import Optional
 from uuid import UUID
 from src.core.common_schemas import BaseSchema
 
-class UserResponseModel(BaseSchema):
+class UserResponseSchema(BaseSchema):
     id : UUID
     username : str
     email : str

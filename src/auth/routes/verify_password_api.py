@@ -15,6 +15,6 @@ async def verify_password(
     schema : ResetPasswordSchema,
     user : UserAuth = Depends(get_current_user)
 ):
-    result = verify_hash(schema.password, user.password)
+    result = await verify_hash(schema.password, user.password)
     response = ResponseModel.create_response(data=result, request=request)
     return response

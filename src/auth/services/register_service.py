@@ -2,7 +2,7 @@ from fastapi import BackgroundTasks
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.user_model import UserAuth
 from src.auth.schemas.register_schema import RegisterSchema
-from src.auth.schemas.user_response_schema import UserResponseModel
+from src.auth.schemas.user_response_schema import UserResponseSchema
 from src.auth.services.check_username_service import check_username_exists
 from src.auth.services.otp_service import create_and_store_otp
 from src.auth.services.otp_service import send_otp
@@ -28,7 +28,7 @@ async def register(
         raise ResourceConflictError("Username already exists")
 
     new_user = UserAuth(**schema.model_dump())
-    new_user.password = generate_hash(schema.password)
+    new_user.password = await generate_hash(schema.password)
 
     session.add(new_user)
     await session.commit()

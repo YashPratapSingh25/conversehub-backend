@@ -1,6 +1,7 @@
 import httpx
 import aiofiles
 from src.core.config import settings
+from src.core.logger import logger
 
 async def transcribe_audio(
     audio_file_path : str
