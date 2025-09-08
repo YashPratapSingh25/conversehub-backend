@@ -19,8 +19,8 @@ class UserAuth(Base):
     first_name : Mapped[str] = mapped_column(String, nullable=False)
     last_name : Mapped[str | None] = mapped_column(String, nullable=True)
     verified : Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
-    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False, index=True)
-    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc), nullable=False)
 
     otps: Mapped[list["Otp"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore
     refresh_tokens : Mapped[list["RefreshToken"]] = relationship(back_populates="user", passive_deletes=True, cascade="all, delete-orphan") # type: ignore

@@ -17,7 +17,7 @@ class PasswordResetToken(Base):
     id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id : Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey(UserAuth.id, ondelete="CASCADE"), index=True, nullable=False)
     token : Mapped[str] = mapped_column(String, nullable=False)
-    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), index=True)
+    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), index=True)
     exp : Mapped[datetime] = mapped_column(DateTime(timezone=True), index=True, nullable=False)
     used : Mapped[bool] = mapped_column(Boolean, default=False, index=True, nullable=False)
 

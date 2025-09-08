@@ -19,7 +19,7 @@ class Turn(Base):
     user_speech_link : Mapped[str] = mapped_column(String, nullable=False)
     ai_speech_link : Mapped[str] = mapped_column(String, nullable=False)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda : datetime.now(timezone.utc), index=True, nullable=False)
-    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda : datetime.now(timezone.utc), nullable=False)
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda : datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     status : Mapped[str] = mapped_column(String, default="not_completed", index=True, nullable=False)
 
     session : Mapped["Session"] = relationship(back_populates="turns")

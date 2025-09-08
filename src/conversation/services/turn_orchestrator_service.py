@@ -1,4 +1,5 @@
 import asyncio
+from datetime import datetime, timezone
 import os
 from pathlib import Path
 import time
@@ -33,9 +34,7 @@ async def turn_orchestrator(
     await audio_file.seek(0)
 
     audio_file_path = await create_temp_file(audio_file, True)
-    logger.debug("Audio file generated")
     transcription = await transcribe_audio(audio_file_path)
-    logger.debug(f"Transcription Done\n{transcription}")
 
     session_db_result = await db_session.execute(
         select(Session)
@@ -70,9 +69,7 @@ async def turn_orchestrator(
     vocal_assessment_task = analyze_speech(audio_file_path, transcription)
     llm_response_task = generate_llm_response(transcription, resume_text, job_description, topic_tags, last_ai_reply)
     
-    logger.debug("Going to Azure and Gemini")
     vocal_assessment, llm_response = await asyncio.gather(vocal_assessment_task, llm_response_task)
-    logger.debug("Result came from Azure and Gemini")
     
     topic = llm_response.get("topic")
     if topic and topic not in topic_tags:
@@ -117,6 +114,7 @@ async def turn_orchestrator(
         "llm_response": llm_response
     }
 
+    session.updated_at = datetime.now(timezone.utc)
+
     os.unlink(audio_file_path)
-    logger.debug(str(result))
     return result

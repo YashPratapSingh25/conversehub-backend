@@ -16,8 +16,8 @@ class Session(Base):
     mode : Mapped[str] = mapped_column(String, nullable=False)
     details : Mapped[dict] = mapped_column(JSONB, default=dict, nullable=False)
     summary_feedack : Mapped[dict] = mapped_column(JSONB, default=dict)
-    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False, index=True)
-    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=datetime.now(timezone.utc), nullable=False)
+    created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), nullable=False, index=True)
+    updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     saved : Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
 
     user : Mapped["UserAuth"] = relationship(back_populates="sessions")
