@@ -60,25 +60,26 @@ async def analyze_speech(audio_path: str, transcript: str):
         pauses_task
     )
 
-    if duration > 30:
-        return None
-
     words = len(transcript.split())
     dur_minutes = duration / 60
-    words_per_min = round(words / dur_minutes, 2)
+    words_per_min = round(words / dur_minutes, 2) if dur_minutes > 0 else 0
+    pauses_per_min = round(pauses / dur_minutes, 2) if dur_minutes > 0 else 0
 
-    pauses_per_min = round(pauses / dur_minutes, 2)
-
-    pronunciation_result = await perform_pronunciation_assessment(audio_path, transcript)
-
-    return {
+    analysis = {
         "duration": duration,
         "words_per_min": words_per_min,
         "pauses_per_min": pauses_per_min,
-        "pronunciation_score": pronunciation_result.pronunciation_score,
-        "accuracy_score": pronunciation_result.accuracy_score,
-        "fluency_score": pronunciation_result.fluency_score,
-        "word_scores": [
+    }
+
+    pronunciation_result = None
+    if duration < 30:
+        pronunciation_result = await perform_pronunciation_assessment(audio_path, transcript)
+
+    if pronunciation_result:
+        analysis["pronunciation_score"] = pronunciation_result.pronunciation_score
+        analysis["accuracy_score"] = pronunciation_result.accuracy_score
+        analysis["fluency_score"] = pronunciation_result.fluency_score
+        analysis["word_scores"] = [
             {
                 "word": word.word,
                 "accuracy_score": word.accuracy_score,
@@ -86,4 +87,10 @@ async def analyze_speech(audio_path: str, transcript: str):
             }
             for word in pronunciation_result.words
         ]
-    }
+    else:
+        analysis["pronunciation_score"] = None
+        analysis["accuracy_score"] = None
+        analysis["fluency_score"] = None
+        analysis["word_scores"] = []
+
+    return analysis

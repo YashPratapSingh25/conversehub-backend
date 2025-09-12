@@ -24,7 +24,6 @@ def get_system_instruction(
     last_api_reply = f"\n\n<Last AI Reply :->\n{last_api_reply}\n" if last_api_reply else ""
 
     system_instruction = basic_instruction + resume_text + job_description + last_api_reply + "\n<Topic tags :->\n" + str(topic_tags)
-    # logger.debug(system_instruction)
     return system_instruction
 
 async def generate_llm_response(transcription : str, resume_text : str | None = None, job_description : str = None, topic_tags : list | None = None, last_api_reply : str | None = None) -> dict:

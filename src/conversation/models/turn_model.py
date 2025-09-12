@@ -16,8 +16,6 @@ class Turn(Base):
     user_text : Mapped[str] = mapped_column(String, nullable=False)
     ai_text : Mapped[str] = mapped_column(String, nullable=False)
     feedback : Mapped[dict] = mapped_column(JSONB, default={}, nullable=False)
-    user_speech_link : Mapped[str] = mapped_column(String, nullable=False)
-    ai_speech_link : Mapped[str] = mapped_column(String, nullable=False)
     created_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda : datetime.now(timezone.utc), index=True, nullable=False)
     updated_at : Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda : datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
     status : Mapped[str] = mapped_column(String, default="not_completed", index=True, nullable=False)

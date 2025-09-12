@@ -14,3 +14,7 @@ class BadRequestError(AppException):
 class UnauthenticatedError(AppException):
     def __init__(self, detail = "Unauthenicated"):
         super().__init__(401, detail)
+
+class ForbiddenError(AppException):
+    def __init__(self, detail="Forbidden"):
+        super().__init__(403, detail)

@@ -16,6 +16,12 @@ class Settings(BaseSettings):
     AZURE_SPEECH_KEY: str
     AZURE_SPEECH_REGION: str
     GEMINI_API_KEY : str
+    ELEVENLABS_URL : str
+    ELEVENLABS_API_KEY : str
+    AZURE_STORAGE_ACCOUNT_NAME : str
+    AZURE_STORAGE_ACCOUNT_KEY : str
+    AZURE_BLOB_CONN_STRING : str
+    INTERVIEW_AI_INTRO : str
 
 
     model_config = SettingsConfigDict(
