@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     AZURE_STORAGE_ACCOUNT_KEY : str
     AZURE_BLOB_CONN_STRING : str
     INTERVIEW_AI_INTRO : str
+    RESEND_API_KEY : str
 
 
     model_config = SettingsConfigDict(
