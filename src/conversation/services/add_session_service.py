@@ -10,7 +10,6 @@ from src.conversation.models.session_model import Session
 from src.conversation.models.turn_model import Turn
 from src.conversation.services.blob_service import upload_file_and_get_sas
 from src.conversation.services.resume_extractor import extract_resume_text
-from src.conversation.services.speech_generation_service import generate_speech
 from src.conversation.services.temp_file_service import create_temp_file_from_req
 from src.core.exceptions_utils.exceptions import BadRequestError
 from src.core.config import settings

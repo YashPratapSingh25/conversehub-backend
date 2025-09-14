@@ -1,25 +1,23 @@
 import asyncio
 from datetime import datetime, timezone
 import os
-from pathlib import Path
-import time
 from uuid import UUID
 import uuid
-from fastapi import BackgroundTasks, UploadFile
+from fastapi import UploadFile
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from src.conversation.models.session_model import Session
 from src.conversation.models.turn_model import Turn
 from src.conversation.services.blob_service import upload_file_and_get_sas
-from src.conversation.services.speech_generation_service import generate_speech
+from src.conversation.services.speech_generation_service import generate_tts_audio
 from src.conversation.services.temp_file_service import create_temp_file_from_req
 from src.conversation.services.vocal_assessment_service import analyze_speech
 from src.conversation.services.llm_service import generate_llm_response
 from src.conversation.services.transcription_service import transcribe_audio
 from src.core.exceptions_utils.exceptions import BadRequestError
 from src.core.logger import logger
-        
+
 async def turn_orchestrator(
     audio_file : UploadFile | None,
     session_id : UUID,
@@ -96,7 +94,7 @@ async def turn_orchestrator(
         "scores": scores
     }
 
-    ai_speech_file_path = await generate_speech(ai_reply)
+    ai_speech_file_path = await generate_tts_audio(ai_reply)
     ai_speech_sas = await upload_file_and_get_sas(
         user_id=session.user_id,
         session_id=session.id,

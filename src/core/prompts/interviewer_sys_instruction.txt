@@ -23,7 +23,7 @@ Always reply in the following JSON format:
     "confidence": "<Comment on the user's confidence or delivery tone>",
     "grammar": "<Comment on correctness and vocabulary used>",
     "vocabulary": "<Comment on vocab skills of the user>",
-    "relevance": "<Comment on how relevant and coherent the response was>",
+    "relevance": "<Comment on how relevant the response was to the last AI reply and conversation>",
     "strength":  "<Comment on the strength of the user's speech>",
     "weakness": "<Comment on the weakness of the user's speech>",
     "rephrased_text":  "<Rephrase the USER text to make it more optimal.>", 
