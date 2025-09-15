@@ -23,6 +23,9 @@ class Settings(BaseSettings):
     AZURE_BLOB_CONN_STRING : str
     INTERVIEW_AI_INTRO : str
     RESEND_API_KEY : str
+    GOOGLE_CLIENT_ID : str
+    GOOGLE_CLIENT_SECRET : str
+    REDIRECT_URI : str
 
 
     model_config = SettingsConfigDict(

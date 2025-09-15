@@ -3,8 +3,8 @@ from datetime import datetime, timezone
 import os
 from uuid import UUID
 import uuid
-from fastapi import UploadFile
-from sqlalchemy import select
+from fastapi import UploadFile, BackgroundTasks
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from src.conversation.models.session_model import Session
@@ -19,9 +19,10 @@ from src.core.exceptions_utils.exceptions import BadRequestError
 from src.core.logger import logger
 
 async def turn_orchestrator(
-    audio_file : UploadFile | None,
-    session_id : UUID,
-    db_session : AsyncSession
+    audio_file: UploadFile | None,
+    session_id: UUID,
+    db_session: AsyncSession,
+    background_tasks: BackgroundTasks
 ):
     if not audio_file:
         raise BadRequestError("No audio file found")
@@ -34,8 +35,7 @@ async def turn_orchestrator(
     turn_id = uuid.uuid4()
 
     session_db_result = await db_session.execute(
-        select(Session)
-        .where(Session.id == session_id)
+        select(Session).where(Session.id == session_id)
     )
 
     session = session_db_result.scalar_one_or_none()
@@ -47,7 +47,7 @@ async def turn_orchestrator(
 
     resume_text = details.get("resume_text")
     job_description = details.get("job_description")
-    topic_tags : list = details.get("topic_tags")
+    topic_tags = details.get("topic_tags")
 
     turn_db_result = await db_session.execute(
         select(Turn)
@@ -62,23 +62,35 @@ async def turn_orchestrator(
     if last_turn:
         last_ai_reply = last_turn.ai_text
 
+    empty_turn = Turn(
+        id=turn_id,
+        session_id=session_id,
+        user_text="Processing...",
+        ai_text="Processing...",
+        feedback={"status": "processing"},
+        status="processing"
+    )
+
+    db_session.add(empty_turn)
+    await db_session.commit()
+
     audio_file_path = await create_temp_file_from_req(audio_file, True)
 
-    transcription_task = transcribe_audio(audio_file_path)
-    user_speech_sas_task = upload_file_and_get_sas(
+    transcription_task = asyncio.create_task(transcribe_audio(audio_file_path))
+    user_speech_sas_task = asyncio.create_task(upload_file_and_get_sas(
         user_id=session.user_id,
         session_id=session.id,
-        turn_id = turn_id,
+        turn_id=turn_id,
         file_path=audio_file_path,
         user=True
-    )
+    ))
 
     transcription, user_speech_sas = await asyncio.gather(transcription_task, user_speech_sas_task)
 
-    vocal_assessment_task = analyze_speech(audio_file_path, transcription)
-    llm_response_task = generate_llm_response(transcription, resume_text, job_description, topic_tags, last_ai_reply)
+    vocal_assessment_task = asyncio.create_task(analyze_speech(audio_file_path, transcription))
+    llm_response_task = asyncio.create_task(generate_llm_response(transcription, resume_text, job_description, topic_tags, last_ai_reply))
 
-    vocal_assessment, llm_response = await asyncio.gather(vocal_assessment_task, llm_response_task)
+    llm_response = await llm_response_task
 
     topic = llm_response.get("topic")
     if topic and topic not in topic_tags:
@@ -87,45 +99,72 @@ async def turn_orchestrator(
 
     ai_reply = llm_response.get("reply", "")
 
-    scores = {**(llm_response["feedback"]["scores"]), **vocal_assessment}
-
-    feedback = {
-        **llm_response.get("feedback"),
-        "scores": scores
-    }
-
     ai_speech_file_path = await generate_tts_audio(ai_reply)
-    ai_speech_sas = await upload_file_and_get_sas(
+    ai_speech_sas_task = asyncio.create_task(upload_file_and_get_sas(
         user_id=session.user_id,
         session_id=session.id,
-        turn_id = turn_id,
+        turn_id=turn_id,
         file_path=ai_speech_file_path,
         user=False
-    )
+    ))
+
+    ai_speech_sas = await ai_speech_sas_task
 
     os.unlink(ai_speech_file_path)
-    
-    turn = Turn(
-        id = turn_id,
-        session_id = session_id,
-        user_text = transcription,
-        ai_text = ai_reply,
-        feedback = feedback,
-    )
 
     db_session.add(session)
-    db_session.add(turn)
     await db_session.commit()
-    await db_session.refresh(session)
-    await db_session.refresh(turn)
+
+    background_tasks.add_task(
+        complete_turn_with_vocal_assessment,
+        vocal_assessment_task=vocal_assessment_task,
+        audio_file_path=audio_file_path,
+        turn_id=turn_id,
+        transcription=transcription,
+        ai_reply=ai_reply,
+        llm_response=llm_response
+    )
 
     result = {
+        "turn_id": str(turn_id),
         "transcription": transcription,
-        "vocal_assessment": vocal_assessment,
+        "vocal_assessment": {"status": "processing"},
         "llm_response": llm_response,
         "user_speech": user_speech_sas,
         "ai_speech": ai_speech_sas
     }
 
-    os.unlink(audio_file_path)
     return result
+
+async def complete_turn_with_vocal_assessment(
+    vocal_assessment_task: asyncio.Task,
+    audio_file_path: str,
+    turn_id: UUID,
+    transcription: str,
+    ai_reply: str,
+    llm_response: dict
+):
+    vocal_assessment = await vocal_assessment_task
+    
+    from src.core.db import session_maker
+    async with session_maker() as db_session:
+        scores = {**(llm_response["feedback"]["scores"]), **vocal_assessment}
+        
+        feedback = {
+            **llm_response.get("feedback"),
+            "scores": scores
+        }
+        
+        await db_session.execute(
+            update(Turn)
+            .where(Turn.id == turn_id)
+            .values(
+                user_text=transcription,
+                ai_text=ai_reply,
+                feedback=feedback,
+                status="completed"
+            )
+        )
+        await db_session.commit()
+
+    os.unlink(audio_file_path)

@@ -1,6 +1,6 @@
 import os
 from uuid import UUID
-from fastapi import APIRouter, Depends, File, Form, Request, UploadFile
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, Request, UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.user_model import UserAuth
 from src.auth.services.auth_dependencies import get_current_user
@@ -15,11 +15,12 @@ add_turn_router = APIRouter()
 @limiter.limit("2/minute")
 async def add_turn(
     request : Request,
+    background_tasks : BackgroundTasks,
     user : UserAuth = Depends(get_current_user),
     db_session : AsyncSession = Depends(get_session),
     audio_file : UploadFile | None = File(None),
     session_id : UUID = Form(...)
 ):
-    result =  await turn_orchestrator(audio_file, session_id, db_session)
+    result =  await turn_orchestrator(audio_file, session_id, db_session, background_tasks)
     response = ResponseModel.create_response(data=result, request=request)
     return response

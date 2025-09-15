@@ -7,7 +7,7 @@ from src.core.db import session_maker
 from src.core.exceptions_utils.exceptions import UnauthenticatedError
 from src.core.token_utils import decode_token
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/google")
 
 async def get_current_user(request : Request, token : str = Depends(oauth_scheme)):
     payload = decode_token(token)
