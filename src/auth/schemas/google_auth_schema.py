@@ -1,4 +1,4 @@
 from src.core.common_schemas import BaseSchema
 
-class GoogleAuthRequest(BaseSchema):
+class GoogleAuthSchema(BaseSchema):
     id_token: str

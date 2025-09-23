@@ -18,12 +18,10 @@ from src.core.exceptions_utils.exception_handlers import (
 )
 from src.core.exceptions_utils.exceptions import AppException
 from src.core.middlewares.logging_middleware import LoggingMiddleware
-from src.core.scheduler import close_scheduler, init_scheduler
 from src.core.logger import logger
 
 @asynccontextmanager
 async def lifespan(app : FastAPI):
-    await init_scheduler()
     app.state.engine = engine
     app.state.limiter = limiter
 
@@ -31,7 +29,6 @@ async def lifespan(app : FastAPI):
 
     await app.state.engine.dispose()
     limiter.enabled = False
-    await close_scheduler()
 
 app = FastAPI(lifespan=lifespan, title="ConverseHub Backend")
 

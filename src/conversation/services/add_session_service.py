@@ -79,5 +79,6 @@ async def start_session(
         "mode": mode,
         "created_at": datetime.now(timezone.utc),
         "ai_text": ai_text,
-        "ai_intro": settings.INTERVIEW_AI_INTRO
+        "ai_intro": settings.INTERVIEW_AI_INTRO,
+        "status": "completed"
     }

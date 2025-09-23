@@ -2,7 +2,7 @@ from fastapi import Request
 from sqlalchemy.ext.asyncio import AsyncSession
 import httpx
 from src.auth.services.get_create_user_service import get_or_create_user
-from src.auth.schemas.google_auth_schema import GoogleAuthRequest
+from src.auth.schemas.google_auth_schema import GoogleAuthSchema
 from src.auth.services.refresh_token_service import create_and_store_refresh_token
 from src.core.exceptions_utils.exceptions import BadRequestError
 from src.core.config import settings
@@ -10,7 +10,7 @@ from src.core.token_utils import encode_token
 
 async def auth_with_google(
     request : Request,
-    schema : GoogleAuthRequest,
+    schema : GoogleAuthSchema,
     session : AsyncSession
 ):
     async with httpx.AsyncClient(timeout=120.0) as client:
