@@ -11,14 +11,14 @@ from src.core.limiter import limiter
 
 google_auth_router = APIRouter()
 
-@limiter.limit("2/1min")
 @google_auth_router.post("/google", response_model=ResponseModel)
+# @limiter.limit("2/1min")
 async def google_auth(
     request : Request,
     schema : GoogleAuthSchema,
     session : AsyncSession = Depends(get_session),
 ):
     result = await auth_with_google(request, schema, session)
-    request.state.user = result.get("user_id")
+    request.state.user = result.user_id
     response = ResponseModel.create_response(request, result)
     return response

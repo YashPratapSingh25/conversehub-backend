@@ -13,6 +13,6 @@ async def get_user_by_id(id : UUID, session : AsyncSession) -> UserAuth | None:
     user = result.scalar_one_or_none()
 
     if user == None:
-        raise BadRequestError("Invalid Email")
+        raise BadRequestError("Invalid user ID")
     
     return user

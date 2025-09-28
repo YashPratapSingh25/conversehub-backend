@@ -1,6 +1,7 @@
 from uuid import UUID
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
+from src.auth.schemas.auth_response_schema import AuthResponseSchema
 from src.auth.schemas.refresh_token_schema import RefreshTokenSchema
 from src.auth.services.get_user_by_id_service import get_user_by_id
 from src.core.token_utils import encode_token
@@ -19,9 +20,9 @@ async def refresh_api_service(schema : RefreshTokenSchema, session : AsyncSessio
     payload = {"sub": str(user_id)}
     new_access_token = encode_token(payload)
 
-    return {
-        "user_id": user_id,
-        "access_token": new_access_token,
-        "refresh_token": new_refresh_token,
-        "type": "Bearer"
-    }
+    return AuthResponseSchema(
+        user_id = user.id,
+        access_token = new_access_token,
+        refresh_token = new_refresh_token,
+        type = "Bearer"
+    ) 

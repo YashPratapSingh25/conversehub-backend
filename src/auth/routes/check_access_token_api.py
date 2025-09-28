@@ -11,7 +11,7 @@ from src.auth.services.auth_dependencies import get_current_user, oauth_scheme
 check_access_token_router = APIRouter()
 
 @check_access_token_router.get('/check-access-token', response_model=ResponseModel)
-@limiter.limit("1/2minute")
+# @limiter.limit("2/1minute")
 async def check_access_token(
     request : Request,
     user : UserAuth = Depends(get_current_user),

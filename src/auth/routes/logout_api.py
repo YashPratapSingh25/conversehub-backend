@@ -12,7 +12,7 @@ from src.auth.services.auth_dependencies import get_current_user, oauth_scheme
 logout_router = APIRouter()
 
 @logout_router.post('/logout', response_model=ResponseModel)
-@limiter.limit("1/2minute")
+# @limiter.limit("2/1minute")
 async def logout(
     request : Request,
     schema : LogoutSchema,

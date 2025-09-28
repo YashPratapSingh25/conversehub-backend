@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.user_model import UserAuth
 from src.conversation.models.session_model import Session
 from src.conversation.models.turn_model import Turn
+from src.conversation.schemas.session_response_schema import AddSessionResponseSchema
 from src.conversation.services.blob_service import upload_file_and_get_sas
 from src.conversation.services.resume_extractor import extract_resume_text
 from src.conversation.services.temp_file_service import create_temp_file_from_req
@@ -73,12 +74,11 @@ async def start_session(
     if resume_path != "":
         os.unlink(resume_path)
 
-    return {
-        "id" : new_session.id,
-        "session_name": session_name,
-        "mode": mode,
-        "created_at": datetime.now(timezone.utc),
-        "ai_text": ai_text,
-        "ai_intro": settings.INTERVIEW_AI_INTRO,
-        "status": "completed"
-    }
+    return AddSessionResponseSchema(
+        id = new_session.id,
+        session_name = session_name,
+        mode = mode,
+        created_at = datetime.now(timezone.utc),
+        ai_text = ai_text,
+        ai_intro = settings.INTERVIEW_AI_INTRO
+    )
