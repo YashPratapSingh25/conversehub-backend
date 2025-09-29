@@ -35,6 +35,8 @@ async def auth_with_google(
     
     return AuthResponseSchema(
         user_id = user.id,
+        first_name = user.first_name,
+        last_name = user.last_name,
         access_token = access_token,
         refresh_token = refresh_token,
         type = "Bearer"
