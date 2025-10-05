@@ -11,7 +11,7 @@ from src.core.limiter import limiter
 
 add_turn_router = APIRouter()
 
-@add_turn_router.post('/add-turn', response_model=ResponseModel)
+@add_turn_router.post('/turn', response_model=ResponseModel)
 @limiter.limit("2/minute")
 async def add_turn(
     request : Request,

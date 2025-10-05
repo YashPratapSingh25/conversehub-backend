@@ -8,7 +8,7 @@ from src.core.limiter import limiter
 
 sas_token_router = APIRouter()
 
-@sas_token_router.get("/get-sas-token/{user_id}/{session_id}/{turn_id}/{role}", response_model=ResponseModel)
+@sas_token_router.get("/sas-token/{user_id}/{session_id}/{turn_id}/{role}", response_model=ResponseModel)
 @limiter.limit("1/5min")
 async def get_sas_token(
     request : Request,

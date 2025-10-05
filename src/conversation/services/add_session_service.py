@@ -3,12 +3,12 @@ from datetime import datetime, timezone
 import os
 import uuid
 from fastapi import UploadFile
-from sqlalchemy import exists, select
+from sqlalchemy import exists, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.auth.models.user_model import UserAuth
 from src.conversation.models.session_model import Session
 from src.conversation.models.turn_model import Turn
-from src.conversation.schemas.session_response_schema import AddSessionResponseSchema
+from src.conversation.schemas.session_response_schema import SessionResponseSchema
 from src.conversation.services.blob_service import upload_file_and_get_sas
 from src.conversation.services.resume_extractor import extract_resume_text
 from src.conversation.services.temp_file_service import create_temp_file_from_req
@@ -24,7 +24,7 @@ async def start_session(
     mode : str = "interview",
 ):
     result = await db_session.execute(
-        select(exists().where(Session.session_name == session_name))
+        select(exists().where(func.lower(Session.session_name) == session_name.lower()))
     )
 
     session_exists = result.scalar()
@@ -74,11 +74,13 @@ async def start_session(
     if resume_path != "":
         os.unlink(resume_path)
 
-    return AddSessionResponseSchema(
+    return SessionResponseSchema(
         id = new_session.id,
+        user_id = new_session.user_id,
         session_name = session_name,
         mode = mode,
+        details = new_session.details,
+        summary_feedback= new_session.summary_feedback,
         created_at = datetime.now(timezone.utc),
-        ai_text = ai_text,
-        ai_intro = settings.INTERVIEW_AI_INTRO
+        updated_at = datetime.now(timezone.utc)
     )

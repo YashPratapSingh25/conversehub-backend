@@ -10,14 +10,14 @@ from src.core.logger import logger
 
 add_session_router = APIRouter()
 
-@add_session_router.post('/add-session', response_model=ResponseModel)
+@add_session_router.post('/session', response_model=ResponseModel)
 @limiter.limit("3/minute")
 async def add_session(
     request : Request,
     session_name : str = Form(...),
     mode : str = Form("interview"),
     user : UserAuth = Depends(get_current_user),
-    resume : UploadFile | None = File(None),
+    resume : UploadFile | None = Form(None),
     job_description : str | None = Form(None),
     db_session : AsyncSession = Depends(get_session)
 ):

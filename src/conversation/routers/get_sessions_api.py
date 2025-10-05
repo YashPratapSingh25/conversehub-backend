@@ -9,7 +9,7 @@ from src.core.limiter import limiter
 
 get_sessions_router = APIRouter()
 
-@get_sessions_router.get('/get-session', response_model=ResponseModel)
+@get_sessions_router.get('/sessions', response_model=ResponseModel)
 async def get_session(
     request : Request,
     limit : int = Query(3, ge=1, le=10),
