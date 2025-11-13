@@ -22,6 +22,7 @@ async def turn_orchestrator(
     audio_file: UploadFile | None,
     session_id: UUID,
     db_session: AsyncSession,
+    background_tasks : BackgroundTasks
 ):
     if not audio_file:
         raise BadRequestError("No audio file found")
