@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm.attributes import flag_modified
 from src.conversation.models.session_model import Session
 from src.conversation.models.turn_model import Turn
+from src.conversation.schemas.turn_response_schema import TurnResponseSchema
 from src.conversation.services.blob_service import upload_file_and_get_sas
 from src.conversation.services.speech_generation_service import generate_tts_audio
 from src.conversation.services.temp_file_service import create_temp_file_from_req
@@ -122,12 +123,14 @@ async def turn_orchestrator(
     db_session.add(new_turn)
     await db_session.commit()
 
-    result = {
-        "turn_id": str(turn_id),
-        "transcription": transcription,
-        "llm_response": llm_response,
-        "user_speech": user_speech_sas,
-        "ai_speech": ai_speech_sas
-    }
+    result = TurnResponseSchema(
+        id=turn_id,
+        transcription=transcription,
+        llm_response=llm_response,
+        user_speech=user_speech_sas,
+        ai_speech=ai_speech_sas,
+        created_at=datetime.now(timezone.utc),
+        updated_at=datetime.now(timezone.utc)
+    )
 
     return result
