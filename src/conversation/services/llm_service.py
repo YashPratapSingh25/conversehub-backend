@@ -42,14 +42,9 @@ async def generate_llm_response(transcription : str, resume_text : str | None = 
         )
     ]
     
-    tools = [
-        types.Tool(googleSearch=types.GoogleSearch()),
-    ]
-    
     system_instruction = get_system_instruction(resume_text, job_description, topic_tags, last_api_reply)
     
     generate_content_config = types.GenerateContentConfig(
-        tools=tools,
         system_instruction=[
             types.Part.from_text(text=system_instruction),
         ],
