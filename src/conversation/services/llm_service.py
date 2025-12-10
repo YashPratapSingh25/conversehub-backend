@@ -31,7 +31,7 @@ async def generate_llm_response(transcription : str, resume_text : str | None = 
         api_key=settings.GEMINI_API_KEY,
     )
 
-    model = "gemini-2.0-flash"
+    model = settings.GEMINI_MODEL
 
     contents = [
         types.Content(

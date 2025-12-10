@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID : str
     GOOGLE_CLIENT_SECRET : str
     REDIRECT_URI : str
+    GEMINI_MODEL : str
 
 
     model_config = SettingsConfigDict(
